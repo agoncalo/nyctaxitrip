@@ -1,4 +1,7 @@
+# Abertura do arquivo
 train = read.csv(file = "~/Desktop/train.csv", header = TRUE, sep = ",")
+
+## Pré Processamento
 train[,6:9] <- scale(train[6:9])
 train <- train[3:11]
 train$dropoff_datetime <- NULL
@@ -19,9 +22,10 @@ colnames(train)[4] <- "hour"
 colnames(train)[5] <- "minute"
 colnames(train)[6] <- "second"
 
+# Limpeza das matrizes auxiliares
 rm(hour,try,try2)
 
 train <- train[2:13]
 
-# Minimos quadrados
+## Minimos quadrados
 lsfit(x = train[1:10], y = train$trip_duration)
