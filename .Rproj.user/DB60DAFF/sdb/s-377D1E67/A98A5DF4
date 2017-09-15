@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "# Abertura dos arquivos\ntrain = read.csv(file = \"~/Documentos/Ciencia da Computacao/Machine Learning/New York City Taxi Trip Duration - Kaggle Competition/Data/train.csv\", header = TRUE, sep = \",\")\ntest = read.csv(file = \"~/Documentos/Ciencia da Computacao/Machine Learning/New York City Taxi Trip Duration - Kaggle Competition/Data/test.csv\", header = TRUE, sep = \",\")\n\n## Pré Processamento\ntrain <- train[3:11]\ntest <- test[3:8]\ntrain$dropoff_datetime <- NULL\ntest$passenger_count <- NULL\n\nlibrary(lubridate)\n\n# Divisão data/hora\ntry <- data.frame(do.call('rbind', strsplit(as.character(train$pickup_datetime),' ',fixed = TRUE)))\ntrytest <- data.frame(do.call('rbind', strsplit(as.character(test$pickup_datetime),' ',fixed = TRUE)))\n\ntry2 <- data.frame(do.call('rbind', strsplit(as.character(try$X2),':',fixed = TRUE)))\ntrytest2 <- data.frame(do.call('rbind', strsplit(as.character(trytest$X2),':',fixed = TRUE)))\n\ntry$X2 <- NULL\ntrytest$X2 <- NULL\n\ntrain <- cbind(try,try2,train)\ntest <- cbind(trytest,trytest2,test)\n\ncolnames(train)[1] <- \"doy\" # Day of Year\ncolnames(train)[2] <- \"hour\"\ncolnames(test)[2] <- \"hour\"\n\n\ndow <- 0 # Day of Week\ntrain <- cbind(dow,train)\n\ntrain$passenger_count <- NULL\ntrain$store_and_fwd_flag <- NULL\n\n# Limpeza das matrizes auxiliares\nrm(try,try2,trytest,trytest2)\n\ntrain$pickup_datetime <- NULL\ntest$pickup_datetime <- NULL\n\ndow <- 0\ntest <- cbind(dow,test)\n\ndistance <- 0\ntrain <- cbind(distance,train)\ntrain2 <- cbind(distance,train2)\ntest <- cbind(distance,test)\n\ntrain$X2 <- NULL\ntrain$X3 <- NULL\ntest$X2 <- NULL\ntest$X3 <- NULL\ntrain2 <- train\n\nlibrary(foreach)\nlibrary(geosphere)\n\nday_of_year <- 0\ntrain <- cbind(day_of_year,train2)\ntest <- cbind(day_of_year,test)\ncolnames(test)[4] <- \"doy\"\n\nforeach(i=1:length(train$day_of_year), .packages = \"geosphere\", .verbose = TRUE) %do% {\n  train$day_of_year[i] <- as.numeric(strftime(train$doy[i],format=\"%j\"))\n  train$dow[i] = as.numeric(train$doy[i]) %% 7\n  train$distance[i] <- distHaversine(p1 = c(train$pickup_longitude[i],train$pickup_latitude[i]),\n                p2 = c(train$dropoff_longitude[i],train$dropoff_latitude[i]))\n}\n\nforeach(i=1:length(test$day_of_year), .packages = \"geosphere\", .verbose = TRUE) %do% {\n  test$day_of_year[i] <- as.numeric(strftime(test$doy[i],format=\"%j\"))\n  test$dow[i] = as.numeric(test$doy[i]) %% 7\n  test$distance[i] <- distHaversine(p1 = c(test$pickup_longitude[i],test$pickup_latitude[i]),\n                                     p2 = c(test$dropoff_longitude[i],test$dropoff_latitude[i]))\n}\n\ntrain$doy <- NULL\ntrain$pickup_latitude <- NULL\ntrain$pickup_longitude <- NULL\ntrain$dropoff_longitude <- NULL\ntrain$dropoff_latitude <- NULL\n\ntest$doy <- NULL\ntest$pickup_latitude <- NULL\ntest$pickup_longitude <- NULL\ntest$dropoff_longitude <- NULL\ntest$dropoff_latitude <- NULL\n\nwrite.csv(test, file = \"test_formated.csv\")\nwrite.csv(train, file = \"train_formated.csv\")",
+    "created" : 1505443560211.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "762589553",
+    "id" : "A98A5DF4",
+    "lastKnownWriteTime" : 1505443615,
+    "last_content_update" : 1505443654406,
+    "path" : "~/Documentos/Ciencia da Computacao/Machine Learning/New York City Taxi Trip Duration - Kaggle Competition/GitHub/nyctaxitrip/nyctaxitrip.r",
+    "project_path" : "nyctaxitrip.r",
+    "properties" : {
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
