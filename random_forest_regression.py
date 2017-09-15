@@ -52,6 +52,6 @@ y_pred = regressor.predict(X_test)
 #-------------------------------------------------------------------------
 
 # SUBMISSION FILE
-df = pd.DataFrame({"id": y_ids, "trip_duration": y_pred})
-df.to_csv('rfr_submission.csv', index=False)
+    df = pd.DataFrame({"id": y_ids, "trip_duration": y_pred})
+    df.to_csv('rfr_submission.csv', index=False)
 
