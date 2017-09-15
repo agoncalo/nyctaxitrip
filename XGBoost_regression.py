@@ -11,6 +11,25 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
+def haversine_np(lon1, lat1, lon2, lat2):
+    """
+    Calculate the great circle distance between two points
+    on the earth (specified in decimal degrees)
+
+    All args must be of equal length.    
+
+    """
+    lon1, lat1, lon2, lat2 = map(np.radians, [lon1, lat1, lon2, lat2])
+
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+
+    a = np.sin(dlat/2.0)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2.0)**2
+
+    c = 2 * np.arcsin(np.sqrt(a))
+    km = 6367 * c
+    return km
+
 #--------------------------------------------------------------------------
 
 # BASES DE DADOS
@@ -28,13 +47,22 @@ test = pd.get_dummies(test, columns=['FLAG'])
 
 # DATA
 type(train['P_DATETIME'])
-train['P_DATETIME'] = train['P_DATETIME'].dt.strftime('%j')
-train.drop(train.columns[[0, 3]], axis=1, inplace=True)
-train = train[['VENDOR_ID', 'P_DATETIME', 'PASSAGENR_COUNT', 'P_LONGITUDE', 'P_LATITUDE', 'D_LONGITUDE', 'D_LATITUDE', 'FLAG', 'T_DURATION']]
+# haversine distance
+train['HAVERSINE'] = haversine_np(train['P_LONGITUDE'],train['P_LATITUDE'],train['D_LONGITUDE'],train['D_LATITUDE'])
+train['WEEKDAY'] = train['P_DATETIME'].dt.strftime('%w')
+train['DOY'] = train['P_DATETIME'].dt.strftime('%j')
+train = train[['VENDOR_ID', 'WEEKDAY', 'DOY', 'PASSAGENR_COUNT', 'P_LONGITUDE', 'P_LATITUDE', 'D_LONGITUDE', 'D_LATITUDE', 'HAVERSINE', 'T_DURATION']]
 
-test['P_DATETIME'] = test['P_DATETIME'].dt.strftime('%j')
-y_ids = test['ID']      # Para arquivo de submissao
-test.drop(test.columns[[0]], axis=1, inplace=True)
+
+#==============================================================================
+# train['P_DATETIME'] = train['P_DATETIME'].dt.strftime('%j')
+# train.drop(train.columns[[0, 3]], axis=1, inplace=True)
+# train = train[['VENDOR_ID', 'P_DATETIME', 'PASSAGENR_COUNT', 'P_LONGITUDE', 'P_LATITUDE', 'D_LONGITUDE', 'D_LATITUDE', 'FLAG', 'T_DURATION']]
+# 
+# test['P_DATETIME'] = test['P_DATETIME'].dt.strftime('%j')
+# y_ids = test['ID']      # Para arquivo de submissao
+# test.drop(test.columns[[0]], axis=1, inplace=True)
+#==============================================================================
 
 #==============================================================================
 # # Analise basica sem as colunas id, pickup_datetime e dropoff_datetime
@@ -48,7 +76,18 @@ X_train = train.iloc[:, 0:9].values
 y_train = train.iloc[:, 9].values
 X_test = test.iloc[:, 0:8].values
 
+
+from sklearn.cross_validation import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size = 0.25, random_state = 12)
+
 #-------------------------------------------------------------------------
+
+from sklearn.ensemble import RandomForestRegressor
+regressor = RandomForestRegressor(n_estimators=30, random_state=12, n_jobs=-1, verbose=2)
+regressor.fit(X_train, y_train)
+
+y_pred = regressor.predict(X_test)
+
 
 # MODELO
 from xgboost import XGBRegressor
